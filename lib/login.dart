@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:webservice/webservice.dart';
+import 'package:http/http.dart' as http;
+import 'package:localstorage/localstorage.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginPage extends StatelessWidget {
+  LoginPage({super.key});
 
-  @override
-  _LoginPageState createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final LocalStorage storage = LocalStorage('data');
 
   void showToast(String message) {
     Fluttertoast.showToast(
@@ -22,17 +19,25 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void login(String email, String pass) async {
-    if (email == '' || pass == '') {
+  void login(context, String mail, String pass) async {
+    if (mail == '' || pass == '') {
       showToast("Email or Password shouldn't be empty!");
       return;
     }
-    String param = "action=login&user_type=admin&email=$email&password=$pass";
-    WebService().get(
-        url: "https://esinebd.com/projects/chargerStation/api.php?$param",
-        onResponse: (resp) {
-          print(resp.message);
-        });
+    String param = "action=login&user_type=admin&email=$mail&password=$pass";
+    await http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param")).then((resp) {
+      if (resp.body.contains("failed")) {
+        showToast("Email or password not found!");
+        return;
+      }
+      var stationId = resp.body.replaceAll("Login successful. User ID: ", "");
+      storage.setItem("login", true);
+      storage.setItem("email", mail);
+      storage.setItem("pass", pass);
+      storage.setItem("station_id", stationId);
+      print("$mail, $pass, $stationId");
+      Navigator.of(context).pushReplacementNamed("/home");
+    });
   }
 
   @override
@@ -67,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {
                       String email = _emailController.text;
                       String pass = _passwordController.text;
-                      login(email, pass);
+                      login(context, email, pass);
                     },
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
