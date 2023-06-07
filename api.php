@@ -142,9 +142,9 @@ function handleQueue()
 function handleRecharge()
 {
   global $conn;
-  $user_id = $_GET['user_id'];
+  $email = $_GET['email'];
   $amount = $_GET['amount'];
-  $sql = "UPDATE users SET balance=balance+'$amount' WHERE id='$user_id'";
+  $sql = "UPDATE users SET balance=balance+'$amount' WHERE email='$email'";
   if ($conn->query($sql) === TRUE) {
     echo "Balance recharged successfully.";
   } else {
