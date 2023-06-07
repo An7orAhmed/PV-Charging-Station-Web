@@ -143,7 +143,7 @@ function handleRecharge()
 {
   global $conn;
   $email = $_GET['email'];
-  $amount = $_GET['amount'];
+  $amount = (int)$_GET['amount'];
   $sql = "UPDATE users SET balance=balance+'$amount' WHERE email='$email'";
   if ($conn->query($sql) === TRUE) {
     echo "Balance recharged successfully.";
