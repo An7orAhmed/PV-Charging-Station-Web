@@ -4,7 +4,7 @@ import 'package:charger_station_web/state.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 
-// flutter build web --release --base-href "/"
+// flutter build web --release --base-href "/joyofj/"
 
 void main() {
   final LocalStorage storage = LocalStorage('data');
