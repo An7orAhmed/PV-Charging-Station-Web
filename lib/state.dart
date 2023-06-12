@@ -15,6 +15,7 @@ class ChargerState extends StatefulWidget {
 
 class _ChargerStateState extends State<ChargerState> {
   List<Charger> chargers = [];
+  bool isFullscreen = false;
 
   @override
   void initState() {
@@ -29,11 +30,15 @@ class _ChargerStateState extends State<ChargerState> {
           for (Map<String, dynamic> element in json) {
             chargers.add(Charger.fromMap(element));
           }
-          setState(() {});
+          setState(() {
+            if (!isFullscreen) {
+              document.documentElement!.requestFullscreen();
+              isFullscreen = true;
+            }
+          });
         }
       });
     });
-    document.documentElement!.requestFullscreen();
     super.initState();
   }
 
@@ -48,7 +53,7 @@ class _ChargerStateState extends State<ChargerState> {
         child: Padding(
           padding: const EdgeInsets.all(30),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.all(20),
@@ -74,8 +79,9 @@ class _ChargerStateState extends State<ChargerState> {
                 )
               else
                 const Text(
-                  "BUSY RIGHT NOW",
-                  style: TextStyle(fontSize: 40, color: Colors.redAccent),
+                  "\nN/A\nBUSY NOW\nCHECK LATER..",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 30, color: Colors.redAccent),
                 ),
             ],
           ),
