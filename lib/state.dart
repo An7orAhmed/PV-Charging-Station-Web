@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -32,30 +33,43 @@ class _ChargerStateState extends State<ChargerState> {
         }
       });
     });
+    document.documentElement!.requestFullscreen();
     super.initState();
   }
 
   Widget chargerCard(Charger charger) {
     return SizedBox(
-      height: 600,
+      height: 400,
+      width: 335,
       child: Card(
         elevation: 30,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
         margin: const EdgeInsets.only(right: 50),
         child: Padding(
-          padding: const EdgeInsets.all(50),
+          padding: const EdgeInsets.all(30),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "Charger ID: 0${charger.id}",
-                style: const TextStyle(fontSize: 32),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.blueAccent,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(100),
+                  ),
+                ),
+                child: Text(
+                  "0${charger.id}",
+                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
               ),
+              const SizedBox(height: 20),
               if (charger.charger_state == "off")
                 Card(
                   elevation: 10,
                   child: Padding(
                     padding: const EdgeInsets.all(10),
-                    child: Image.asset("assets/${charger.id}.png", height: 280, width: 280),
+                    child: Image.asset("assets/${charger.id}.png", height: 200, width: 200),
                   ),
                 )
               else
@@ -74,26 +88,30 @@ class _ChargerStateState extends State<ChargerState> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 120),
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const Text(
               "XYZ CHARGING STATION",
-              style: TextStyle(fontSize: 38, color: Colors.blueAccent),
+              style: TextStyle(fontSize: 38, color: Colors.blueAccent, fontWeight: FontWeight.bold),
             ),
             Text(
               "STATION ID: 01",
               style: TextStyle(fontSize: 33, color: Colors.blueGrey.shade700),
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: chargers
-                  .map(
-                    (charger) => chargerCard(charger),
-                  )
-                  .toList(),
+            SingleChildScrollView(
+              clipBehavior: Clip.none,
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: chargers
+                    .map(
+                      (charger) => chargerCard(charger),
+                    )
+                    .toList(),
+              ),
             ),
           ],
         ),
