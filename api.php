@@ -24,8 +24,15 @@ if (isset($_GET['action'])) {
       handleLogin();
       break;
 
+    case 'info':
+      handleInfo();
+      break;
+
     case 'recharge':
       handleRecharge();
+      break;
+    case 'balance':
+      handleBalance();
       break;
     case 'addCharger':
       handleAddCharger();
@@ -99,6 +106,44 @@ function handleLogin()
     echo "Login successful. User ID: " . $row['id'];
   } else {
     echo "Login failed. Invalid email or password.";
+  }
+}
+
+// Handle balance request
+function handleBalance()
+{
+  global $conn;
+  $email = $_GET['email'];
+  $sql = "SELECT * FROM users WHERE email='$email'";
+  $result = $conn->query($sql);
+  if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    echo "Balance: " . $row['balance'];
+  } else {
+    echo "Error.";
+  }
+}
+
+// Handle info request
+function handleInfo()
+{
+  global $conn;
+  $msg = $_GET['msg'];
+  if(isset($_GET['msg'])) {
+    $sql = "REPLACE INTO info (id, msg) VALUES ('1', '$msg')";
+    if($conn->query($sql) === true) {
+      echo "Updated.";
+    }
+  } 
+  else {
+    $sql = "SELECT * FROM info WHERE id='1'";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+      $row = $result->fetch_assoc();
+      echo "MSG: " . $row['msg'];
+    } else {
+      echo "Error.";
+    }
   }
 }
 

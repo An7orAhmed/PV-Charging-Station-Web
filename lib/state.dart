@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,7 +14,7 @@ class ChargerState extends StatefulWidget {
 
 class _ChargerStateState extends State<ChargerState> {
   List<Charger> chargers = [];
-  bool isFullscreen = false;
+  bool isInfoShown = false;
 
   @override
   void initState() {
@@ -30,12 +29,41 @@ class _ChargerStateState extends State<ChargerState> {
           for (Map<String, dynamic> element in json) {
             chargers.add(Charger.fromMap(element));
           }
-          setState(() {
-            if (!isFullscreen) {
-              document.documentElement!.requestFullscreen();
-              isFullscreen = true;
-            }
-          });
+          setState(() {});
+        }
+      });
+
+      if (isInfoShown) return;
+      param = "action=info";
+      http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param")).then((resp) {
+        if (resp.body.contains("none")) {
+          return;
+        } else {
+          String msg = resp.body.replaceAll("MSG: ", "");
+          showDialog(
+            context: context,
+            builder: (context) {
+              Future.delayed(const Duration(seconds: 5), () {
+                param = "action=info&msg=none";
+                http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param"));
+                Navigator.of(context).pop();
+                isInfoShown = false;
+              });
+              isInfoShown = true;
+              return AlertDialog(
+                title: const Text("Info", textAlign: TextAlign.center),
+                content: SizedBox(
+                  height: 180,
+                  child: Center(
+                    child: Text(
+                      msg,
+                      style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w300),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
         }
       });
     });
