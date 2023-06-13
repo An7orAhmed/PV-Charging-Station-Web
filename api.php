@@ -54,6 +54,9 @@ if (isset($_GET['action'])) {
       handleCustomerQueue();
       break;
 
+    case 'chargerState':
+      handleChargerState();
+      break;
     case 'stationChargers':
       handleStationChargers();
       break;
@@ -242,6 +245,22 @@ function handleCustomerQueue()
     echo json_encode($arr);
   } else {
     echo "No queued chargers for this customer.";
+  }
+}
+
+// Handle station chargers request
+function handleChargerState()
+{
+  global $conn;
+  $station_id = $_GET['station_id'];
+  $charger_id = $_GET['charger_id'];
+  $sql = "SELECT * FROM chargers WHERE station_id='$station_id' AND id='$charger_id'";
+  $result = $conn->query($sql);
+  if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    echo $row['charger_state'];
+  } else {
+    echo "No charger.";
   }
 }
 
