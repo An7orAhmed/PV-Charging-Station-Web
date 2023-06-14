@@ -161,7 +161,7 @@ function handleQueue()
   $station_id = $_GET['station_id'];
   $charger_id = $_GET['charger_id'];
   $charge_bill = $_GET['charge_bill'];
-  $charge_time = intval($_GET['charge_time']);
+  $charge_time = $_GET['charge_time'];
   $charging_mode = $_GET['charging_mode'];
   $sql = "UPDATE chargers SET charger_state='busy' WHERE id='$charger_id' AND station_id='$station_id'";
   if ($conn->query($sql) === TRUE) {
