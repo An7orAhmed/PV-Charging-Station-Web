@@ -31,6 +31,9 @@ if (isset($_GET['action'])) {
     case 'recharge':
       handleRecharge();
       break;
+    case 'deduct':
+      handleDeduct();
+      break;
     case 'balance':
       handleBalance();
       break;
@@ -163,7 +166,7 @@ function handleQueue()
   $charge_bill = $_GET['charge_bill'];
   $charge_time = $_GET['charge_time'];
   $charging_mode = $_GET['charging_mode'];
-  $sql = "UPDATE chargers SET charger_state='busy' WHERE id='$charger_id' AND station_id='$station_id'";
+  $sql = "UPDATE chargers SET charger_state='busy', time='$charge_time' WHERE id='$charger_id' AND station_id='$station_id'";
   if ($conn->query($sql) === TRUE) {
     $sql = "INSERT INTO charging_logs (user_id, station_id, charger_id, charge_bill, charge_time, charging_mode, start_time) VALUES ('$user_id', '$station_id', '$charger_id', '$charge_bill', '$charge_time', '$charging_mode', NOW())";
     $conn->query($sql);
@@ -182,6 +185,20 @@ function handleRecharge()
   $sql = "UPDATE users SET balance=balance+'$amount' WHERE email='$email'";
   if ($conn->query($sql) === TRUE) {
     echo "Balance recharged successfully.";
+  } else {
+    echo "Error updating balance: " . $conn->error;
+  }
+}
+
+// Handle deduct request
+function handleDeduct()
+{
+  global $conn;
+  $email = $_GET['email'];
+  $amount = (int)$_GET['amount'];
+  $sql = "UPDATE users SET balance=balance-'$amount' WHERE email='$email'";
+  if ($conn->query($sql) === TRUE) {
+    echo "Balance deducted successfully.";
   } else {
     echo "Error updating balance: " . $conn->error;
   }
