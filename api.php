@@ -44,6 +44,9 @@ if (isset($_GET['action'])) {
       handleUpdateCharger();
       break;
 
+    case 'rate':
+      handleRate();
+      break;
     case 'queue':
       handleQueue();
       break;
@@ -248,7 +251,7 @@ function handleCustomerQueue()
   }
 }
 
-// Handle station chargers request
+// Handle charger state request
 function handleChargerState()
 {
   global $conn;
@@ -259,6 +262,22 @@ function handleChargerState()
   if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     echo $row['charger_state'];
+  } else {
+    echo "No charger.";
+  }
+}
+
+// Handle charger rate request
+function handleRate()
+{
+  global $conn;
+  $station_id = $_GET['station_id'];
+  $charger_id = $_GET['charger_id'];
+  $sql = "SELECT * FROM chargers WHERE station_id='$station_id' AND id='$charger_id'";
+  $result = $conn->query($sql);
+  if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    echo "Rate: " . $row['rate'];
   } else {
     echo "No charger.";
   }

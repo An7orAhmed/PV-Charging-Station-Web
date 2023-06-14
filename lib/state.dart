@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -14,6 +15,7 @@ class ChargerState extends StatefulWidget {
 
 class _ChargerStateState extends State<ChargerState> {
   List<Charger> chargers = [];
+  bool isFullscreen = false;
   bool isInfoShown = false;
 
   @override
@@ -29,7 +31,12 @@ class _ChargerStateState extends State<ChargerState> {
           for (Map<String, dynamic> element in json) {
             chargers.add(Charger.fromMap(element));
           }
-          setState(() {});
+          setState(() {
+            if (!isFullscreen) {
+              document.documentElement!.requestFullscreen();
+              isFullscreen = true;
+            }
+          });
         }
       });
 
