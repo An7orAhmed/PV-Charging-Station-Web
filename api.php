@@ -161,31 +161,15 @@ function handleQueue()
   $station_id = $_GET['station_id'];
   $charger_id = $_GET['charger_id'];
   $charge_bill = $_GET['charge_bill'];
-  $charge_time = $_GET['charge_time'];
+  $charge_time = intval($_GET['charge_time']);
   $charging_mode = $_GET['charging_mode'];
-  $sql = "SELECT * FROM chargers WHERE id='$charger_id' AND station_id='$station_id' AND charger_state='off'";
-  $result = $conn->query($sql);
-  if ($result->num_rows > 0) {
-    $sql = "UPDATE chargers SET charger_state='busy' WHERE id='$charger_id' AND station_id='$station_id'";
-    if ($conn->query($sql) === TRUE) {
-      $sql = "INSERT INTO charging_logs (user_id, station_id, charger_id, charge_bill, charge_time, charging_mode, start_time) VALUES ('$user_id', '$station_id', '$charger_id', '$charge_bill', '$charge_time', '$charging_mode', NOW())";
-      if ($conn->query($sql) === TRUE) {
-        echo "Charger queued successfully.";
-        sleep($charge_time * 60);
-        $sql = "UPDATE chargers SET charger_state='off' WHERE id='$charger_id' AND station_id='$station_id'";
-        if ($conn->query($sql) === TRUE) {
-          echo "Charger state updated.";
-        } else {
-          echo "Error updating charger state: " . $conn->error;
-        }
-      } else {
-        echo "Error creating charger queue: " . $conn->error;
-      }
-    } else {
-      echo "Error updating charger state: " . $conn->error;
-    }
+  $sql = "UPDATE chargers SET charger_state='busy' WHERE id='$charger_id' AND station_id='$station_id'";
+  if ($conn->query($sql) === TRUE) {
+    $sql = "INSERT INTO charging_logs (user_id, station_id, charger_id, charge_bill, charge_time, charging_mode, start_time) VALUES ('$user_id', '$station_id', '$charger_id', '$charge_bill', '$charge_time', '$charging_mode', NOW())";
+    $conn->query($sql);
+    echo "Charger queued successfully.";
   } else {
-    echo "Charger is not available.";
+    echo "Error updating charger state: " . $conn->error;
   }
 }
 
