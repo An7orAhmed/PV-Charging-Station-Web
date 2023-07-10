@@ -3,6 +3,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 
+import 'const.dart';
+
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
@@ -25,7 +27,7 @@ class LoginPage extends StatelessWidget {
       return;
     }
     String param = "action=login&user_type=admin&email=$mail&password=$pass";
-    await http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param")).then((resp) {
+    await http.get(Uri.parse("${host}api.php?$param")).then((resp) {
       if (resp.body.contains("failed")) {
         showToast("Email or password not found!");
         return;

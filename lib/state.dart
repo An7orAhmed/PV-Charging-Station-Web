@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'charger.dart';
+import 'const.dart';
 
 class ChargerState extends StatefulWidget {
   const ChargerState({super.key});
@@ -22,7 +23,7 @@ class _ChargerStateState extends State<ChargerState> {
   void initState() {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       String param = "action=stationChargers&station_id=1";
-      http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param")).then((resp) {
+      http.get(Uri.parse("${host}api.php?$param")).then((resp) {
         if (resp.body.contains("No chargers")) {
           return;
         } else {
@@ -42,7 +43,7 @@ class _ChargerStateState extends State<ChargerState> {
 
       if (isInfoShown) return;
       param = "action=info";
-      http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param")).then((resp) {
+      http.get(Uri.parse("${host}api.php?$param")).then((resp) {
         if (resp.body.contains("none")) {
           return;
         } else {
@@ -52,7 +53,7 @@ class _ChargerStateState extends State<ChargerState> {
             builder: (context) {
               Future.delayed(const Duration(seconds: 5), () {
                 param = "action=info&msg=none";
-                http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param"));
+                http.get(Uri.parse("${host}api.php?$param"));
                 Navigator.of(context).pop();
                 isInfoShown = false;
               });
@@ -64,7 +65,8 @@ class _ChargerStateState extends State<ChargerState> {
                   child: Center(
                     child: Text(
                       msg,
-                      style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w300),
+                      style: const TextStyle(
+                          fontSize: 38, fontWeight: FontWeight.w300),
                     ),
                   ),
                 ),
@@ -83,7 +85,8 @@ class _ChargerStateState extends State<ChargerState> {
       width: 335,
       child: Card(
         elevation: 30,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(50))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(50))),
         margin: const EdgeInsets.only(right: 50),
         child: Padding(
           padding: const EdgeInsets.all(30),
@@ -100,7 +103,10 @@ class _ChargerStateState extends State<ChargerState> {
                 ),
                 child: Text(
                   "0${charger.id}",
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ),
               const SizedBox(height: 20),
@@ -109,7 +115,8 @@ class _ChargerStateState extends State<ChargerState> {
                   elevation: 10,
                   child: Padding(
                     padding: const EdgeInsets.all(10),
-                    child: Image.asset("assets/${charger.id}.png", height: 200, width: 200),
+                    child: Image.asset("assets/${charger.id}.png",
+                        height: 200, width: 200),
                   ),
                 )
               else
@@ -135,7 +142,10 @@ class _ChargerStateState extends State<ChargerState> {
           children: [
             const Text(
               "XYZ CHARGING STATION",
-              style: TextStyle(fontSize: 38, color: Colors.blueAccent, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 38,
+                  color: Colors.blueAccent,
+                  fontWeight: FontWeight.bold),
             ),
             Text(
               "STATION ID: 01",

@@ -1,12 +1,12 @@
 import 'dart:convert';
-
 import 'package:charger_station_web/login.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
-
 import 'charger.dart';
+import 'const.dart';
+import 'log.dart';
 
 // ignore: must_be_immutable
 class HomePage extends StatelessWidget {
@@ -14,6 +14,7 @@ class HomePage extends StatelessWidget {
 
   final LocalStorage storage = LocalStorage('data');
   List<Charger> chargers = [];
+  List<Log> logs = [];
 
   void showToast(String message) {
     Fluttertoast.showToast(
@@ -27,7 +28,7 @@ class HomePage extends StatelessWidget {
   Future<void> loadChargers() async {
     String stationId = storage.getItem("station_id");
     String param = "action=stationChargers&station_id=$stationId";
-    var resp = await http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param"));
+    var resp = await http.get(Uri.parse("${host}api.php?$param"));
 
     if (resp.body.contains("No chargers")) {
       showToast("No Charger found!");
@@ -39,6 +40,15 @@ class HomePage extends StatelessWidget {
         chargers.add(Charger.fromMap(element));
       }
     }
+  }
+
+  Future<void> stationLog() async {
+    String sid = storage.getItem("station_id");
+    String param = "action=stationQueue&station_id=$sid";
+    var resp = await http.get(Uri.parse("${host}api.php?$param"));
+    List<dynamic> json = jsonDecode(resp.body);
+    logs.clear();
+    logs.addAll(json.map((e) => Log.fromMap(e)).toList());
   }
 
   Widget button(String title, Icon icon, action) {
@@ -116,14 +126,17 @@ class HomePage extends StatelessWidget {
                   case 4:
                     return FilledButton(
                       onPressed: () async {
-                        if (email.text == "" || pass.text == "" || name.text == "" || phone.text == "") {
+                        if (email.text == "" ||
+                            pass.text == "" ||
+                            name.text == "" ||
+                            phone.text == "") {
                           showToast("Please fill all the fields!");
                           return;
                         }
                         String param =
                             "action=signup&email=${email.text}&password=${pass.text}&name=${name.text}&phone_number=${phone.text}&user_type=user";
                         var resp =
-                            await http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param"));
+                            await http.get(Uri.parse("${host}api.php?$param"));
                         if (resp.body.contains("created")) {
                           showToast("Customer Add Successfully.");
                           Navigator.of(context).pop();
@@ -187,9 +200,10 @@ class HomePage extends StatelessWidget {
                           showToast("Please fill all the fields!");
                           return;
                         }
-                        String param = "action=recharge&email=${email.text}&amount=${balance.text}";
+                        String param =
+                            "action=recharge&email=${email.text}&amount=${balance.text}";
                         var resp =
-                            await http.get(Uri.parse("https://esinebd.com/projects/chargerStation/api.php?$param"));
+                            await http.get(Uri.parse("${host}api.php?$param"));
                         print(resp.body);
                         if (resp.body.contains("recharged")) {
                           showToast("Balance Added Successfully.");
@@ -204,7 +218,7 @@ class HomePage extends StatelessWidget {
                     return const SizedBox.shrink();
                 }
               },
-              separatorBuilder: (context, i) => const SizedBox(height: 20), 
+              separatorBuilder: (context, i) => const SizedBox(height: 20),
             ),
           ),
         );
@@ -252,12 +266,16 @@ class HomePage extends StatelessWidget {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            button("Add\nCustomer", const Icon(Icons.add_circle, color: Colors.blueAccent, size: 50),
+                            button(
+                                "Add\nCustomer",
+                                const Icon(Icons.add_circle,
+                                    color: Colors.blueAccent, size: 50),
                                 () => addCustomer(context)),
                             const SizedBox(width: 10),
                             button(
                                 "Recharge\nCustomer",
-                                const Icon(Icons.monetization_on, color: Colors.purpleAccent, size: 50),
+                                const Icon(Icons.monetization_on,
+                                    color: Colors.purpleAccent, size: 50),
                                 () => rechargeBalance(context)),
                           ],
                         ),
@@ -271,14 +289,64 @@ class HomePage extends StatelessWidget {
                                   child: Padding(
                                     padding: const EdgeInsets.all(10),
                                     child: ListTile(
-                                      leading: CircleAvatar(child: Text(charger.id)),
-                                      title: Text("Charger State: ${charger.charger_state}"),
-                                      trailing: Text("Rate: ${charger.rate}TK/min"),
+                                      leading:
+                                          CircleAvatar(child: Text(charger.id)),
+                                      title: Text(
+                                          "Charger State: ${charger.charger_state}"),
+                                      trailing:
+                                          Text("Rate: ${charger.rate}TK/min"),
                                     ),
                                   ),
                                 ),
                               )
                               .toList(),
+                        ),
+                        const SizedBox(height: 15),
+                        const Text("History", style: TextStyle(fontSize: 24)),
+                        const SizedBox(height: 15),
+                        Expanded(
+                          child: FutureBuilder(
+                            future: stationLog(),
+                            builder: (context, data) {
+                              if (data.connectionState !=
+                                  ConnectionState.done) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+
+                              if (logs.isEmpty) {
+                                return const Center(
+                                    child: Text("No previous log found!"));
+                              }
+
+                              return ListView(
+                                children: logs
+                                    .map(
+                                      (log) => Card(
+                                        elevation: 5,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 10),
+                                        child: ListTile(
+                                          title: Text(log.start_time),
+                                          subtitle: Text(
+                                              "User ID: ${log.user_id} | CHA: ${log.charger_id} | ${log.charging_mode}"),
+                                          trailing: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text("${log.charge_bill}TK"),
+                                              Text(log.charge_time == "-1"
+                                                  ? "F.CHA"
+                                                  : "${log.charge_time} min"),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
