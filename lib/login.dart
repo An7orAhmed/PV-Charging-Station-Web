@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
-
 import 'const.dart';
 
 class LoginPage extends StatelessWidget {
@@ -38,6 +37,7 @@ class LoginPage extends StatelessWidget {
       storage.setItem("pass", pass);
       storage.setItem("station_id", stationId);
       print("$mail, $pass, $stationId");
+      showToast("Login Successful");
       Navigator.of(context).pushReplacementNamed("/home");
     });
   }

@@ -1,1 +1,1 @@
-String host = "http://joyofjbd.com/";
+String host = "https://joyofjbd.com/";
